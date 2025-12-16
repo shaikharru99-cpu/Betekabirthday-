@@ -2,129 +2,138 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Birthday Surprise 🎉</title>
+<title>Secure Birthday Access</title>
 
 <style>
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Segoe UI', monospace;
 }
 
 body{
   height:100vh;
   overflow:hidden;
   background:black;
-  color:white;
+  color:#00ff99;
 }
 
-/* ===== HACKER BACKGROUND ===== */
+/* ===== MATRIX BACKGROUND ===== */
 canvas{
   position:fixed;
   inset:0;
-  z-index:-1;
+  z-index:0;
 }
 
-/* ===== INTRO ===== */
+/* ===== OVERLAY ===== */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:1;
+}
+
+/* ===== INTRO TERMINAL ===== */
 #intro{
   position:fixed;
   inset:0;
-  background:black;
   display:flex;
   justify-content:center;
   align-items:center;
-  z-index:10;
+  z-index:2;
 }
 
 #introText{
-  color:#00ff00;
-  font-family:monospace;
-  font-size:16px;
-  text-align:center;
-}
-
-/* ===== UI ===== */
-.container{
-  background: rgba(0,0,0,0.65);
-  padding:25px;
-  border-radius:20px;
-  text-align:center;
+  color:#00ff99;
+  font-size:15px;
+  text-align:left;
+  line-height:1.6;
   width:90%;
-  max-width:400px;
+  max-width:420px;
+}
+
+/* ===== MAIN CARD ===== */
+.card{
+  position:relative;
+  z-index:2;
+  width:90%;
+  max-width:380px;
   margin:auto;
-  box-shadow:0 0 25px #00ffcc;
-  animation: pop 1s ease;
+  background:rgba(0,0,0,0.75);
+  border:1px solid #00ff99;
+  border-radius:12px;
+  padding:22px;
+  box-shadow:0 0 25px rgba(0,255,150,0.3);
+  text-align:center;
+  display:none;
 }
 
-@keyframes pop{
-  from{transform:scale(0.8);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
-
-h1{
+.card h1{
+  font-size:20px;
   margin-bottom:15px;
   color:#00ffcc;
 }
 
 input{
   width:100%;
-  padding:12px;
-  margin:10px 0;
-  border:none;
-  border-radius:10px;
+  padding:10px;
+  margin:8px 0;
+  background:black;
+  border:1px solid #00ff99;
+  color:#00ff99;
+  border-radius:6px;
   outline:none;
-  font-size:16px;
 }
 
 button{
+  margin-top:10px;
   width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#00ffcc;
+  padding:10px;
+  background:#00ff99;
   color:black;
-  font-size:18px;
   font-weight:bold;
+  border:none;
+  border-radius:6px;
   cursor:pointer;
 }
 
 button:hover{
-  background:white;
+  background:#00ffaa;
 }
 
+/* ===== RESULT ===== */
 #cake{
-  display:none;
-  font-size:100px;
-  animation: bounce 1s infinite;
+  font-size:90px;
+  margin:10px 0;
+  animation: float 1.2s infinite;
 }
 
-@keyframes bounce{
+@keyframes float{
   0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-20px)}
+  50%{transform:translateY(-15px)}
 }
 
 .bold{
-  font-size:24px;
-  font-weight:900;
-  color:#00ff00;
-  margin-top:10px;
-  text-shadow:0 0 10px #00ff00;
+  font-size:20px;
+  font-weight:800;
+  margin-top:8px;
+  color:#00ff99;
 }
 </style>
 </head>
 
 <body>
 
-<!-- Hacker background -->
 <canvas id="matrix"></canvas>
+<div class="overlay"></div>
 
-<!-- Intro -->
+<!-- INTRO -->
 <div id="intro">
   <div id="introText"></div>
 </div>
 
-<!-- Audio -->
+<!-- AUDIO -->
 <audio id="bgmusic" loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
@@ -133,47 +142,42 @@ button:hover{
   <source src="blast.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Form -->
-<div class="container" id="formBox" style="display:none">
-  <h1>🎂 Birthday Entry 🎂</h1>
-  <input type="text" id="name" placeholder="Naam likh 😎">
-  <input type="number" id="age" placeholder="Age likh 🎉">
-  <button onclick="start()">ENTER</button>
+<!-- FORM -->
+<div class="card" id="formBox">
+  <h1>SECURE BIRTHDAY ACCESS</h1>
+  <input id="name" placeholder="Enter name">
+  <input id="age" type="number" placeholder="Enter age">
+  <button onclick="start()">VERIFY</button>
 </div>
 
-<!-- Result -->
-<div class="container" id="result" style="display:none">
+<!-- RESULT -->
+<div class="card" id="result">
   <h1 id="wish"></h1>
   <div id="cake">🎂</div>
-  <div class="bold">BETE KA BIRTHDAY H 🎉</div>
+  <div class="bold">BETE KA BIRTHDAY H</div>
 </div>
 
 <script>
-/* ===== MATRIX BACKGROUND ===== */
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+/* ===== MATRIX ===== */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const fontSize = 14;
-const columns = canvas.width / fontSize;
-const drops = [];
-
-for(let x=0;x<columns;x++) drops[x]=1;
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const size=14;
+const cols=canvas.width/size;
+const drops=Array(Math.floor(cols)).fill(1);
 
 function draw(){
-  ctx.fillStyle="rgba(0,0,0,0.05)";
+  ctx.fillStyle="rgba(0,0,0,0.08)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  ctx.fillStyle="#00ff00";
-  ctx.font=fontSize+"px monospace";
-
+  ctx.fillStyle="#00ff99";
+  ctx.font=size+"px monospace";
   for(let i=0;i<drops.length;i++){
-    const text = letters[Math.floor(Math.random()*letters.length)];
-    ctx.fillText(text, i*fontSize, drops[i]*fontSize);
-    if(drops[i]*fontSize > canvas.height && Math.random() > 0.975){
+    const t=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(t,i*size,drops[i]*size);
+    if(drops[i]*size>canvas.height && Math.random()>0.98){
       drops[i]=0;
     }
     drops[i]++;
@@ -181,75 +185,45 @@ function draw(){
 }
 setInterval(draw,50);
 
-/* ===== INTRO TEXT ===== */
-const introLines = [
-  "Initializing system...",
-  "Connecting to birthday server...",
-  "Access granted ✔"
+/* ===== INTRO ===== */
+const introLines=[
+  "> Initializing secure environment...",
+  "> Verifying access credentials...",
+  "> Birthday protocol loaded.",
+  "> Access granted."
 ];
 
-let i=0;
-const introBox = document.getElementById("introText");
+let idx=0;
+const box=document.getElementById("introText");
 
-const introInterval = setInterval(()=>{
-  introBox.innerHTML += introLines[i] + "<br>";
-  i++;
-  if(i===introLines.length){
-    clearInterval(introInterval);
+const introTimer=setInterval(()=>{
+  box.innerHTML+=introLines[idx]+"<br>";
+  idx++;
+  if(idx===introLines.length){
+    clearInterval(introTimer);
     setTimeout(()=>{
       document.getElementById("intro").style.display="none";
       document.getElementById("formBox").style.display="block";
       document.getElementById("bgmusic").play();
-    },1000);
+    },800);
   }
 },700);
 
-/* ===== MAIN LOGIC ===== */
+/* ===== MAIN ===== */
 function start(){
-  let name=document.getElementById("name").value;
-  let age=document.getElementById("age").value;
+  const name=document.getElementById("name").value;
+  const age=document.getElementById("age").value;
 
-  if(name=="" || age==""){
-    alert("Naam aur age dono bhar");
+  if(!name||!age){
+    alert("Details required");
     return;
   }
 
   document.getElementById("formBox").style.display="none";
   document.getElementById("result").style.display="block";
-
-  document.getElementById("wish").innerHTML =
-    "🎉 Happy "+age+"th Birthday "+name+" 🎉";
-
-  document.getElementById("cake").style.display="block";
+  document.getElementById("wish").innerHTML=
+    "Happy "+age+"th Birthday<br>"+name;
   document.getElementById("blast").play();
-}
-</script>
-
-</body>
-</html>  let age = document.getElementById("age").value;
-
-  if(name=="" || age==""){
-    alert("Naam aur age dono bhar 😑");
-    return;
-  }
-
-  document.getElementById("formBox").style.display="none";
-  document.getElementById("result").style.display="block";
-
-  document.getElementById("wish").innerHTML =
-    "🎉 Happy " + age + "th Birthday " + name + " 🎉";
-
-  document.getElementById("cake").style.display="block";
-  document.getElementById("blast").play();
-
-  for(let i=0;i<50;i++){
-    let conf = document.createElement("div");
-    conf.className="confetti";
-    conf.style.left=Math.random()*100+"vw";
-    conf.style.background=`hsl(${Math.random()*360},100%,50%)`;
-    conf.style.animationDuration=(Math.random()*3+2)+"s";
-    document.body.appendChild(conf);
-  }
 }
 </script>
 
