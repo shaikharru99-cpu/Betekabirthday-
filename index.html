@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,13 +10,13 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: 'Segoe UI', monospace;
+  font-family: "Segoe UI", monospace;
 }
 
 body{
   height:100vh;
-  overflow:hidden;
   background:black;
+  overflow:hidden;
   color:#00ff99;
 }
 
@@ -26,51 +27,73 @@ canvas{
   z-index:0;
 }
 
-/* ===== OVERLAY ===== */
+/* Dark overlay */
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.65);
   z-index:1;
 }
 
-/* ===== INTRO TERMINAL ===== */
+/* Scanlines */
+.scanlines::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events:none;
+  z-index:2;
+}
+
+/* ===== INTRO ===== */
 #intro{
   position:fixed;
   inset:0;
   display:flex;
   justify-content:center;
   align-items:center;
-  z-index:2;
+  z-index:3;
 }
 
 #introText{
-  color:#00ff99;
   font-size:15px;
-  text-align:left;
   line-height:1.6;
-  width:90%;
   max-width:420px;
 }
 
-/* ===== MAIN CARD ===== */
+/* ===== CENTER CARD ===== */
 .card{
-  position:relative;
-  z-index:2;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index:3;
   width:90%;
   max-width:380px;
-  margin:auto;
-  background:rgba(0,0,0,0.75);
+  background:rgba(0,0,0,0.8);
   border:1px solid #00ff99;
   border-radius:12px;
   padding:22px;
-  box-shadow:0 0 25px rgba(0,255,150,0.3);
   text-align:center;
+  box-shadow:0 0 15px #00ff99;
+  animation:pulse 2s infinite;
   display:none;
 }
 
+@keyframes pulse{
+  0%{box-shadow:0 0 10px #00ff99}
+  50%{box-shadow:0 0 25px #00ffaa}
+  100%{box-shadow:0 0 10px #00ff99}
+}
+
 .card h1{
-  font-size:20px;
+  font-size:18px;
   margin-bottom:15px;
   color:#00ffcc;
 }
@@ -87,14 +110,13 @@ input{
 }
 
 button{
-  margin-top:10px;
   width:100%;
+  margin-top:10px;
   padding:10px;
   background:#00ff99;
-  color:black;
-  font-weight:bold;
   border:none;
   border-radius:6px;
+  font-weight:bold;
   cursor:pointer;
 }
 
@@ -104,9 +126,10 @@ button:hover{
 
 /* ===== RESULT ===== */
 #cake{
+  position:relative;
   font-size:90px;
-  margin:10px 0;
-  animation: float 1.2s infinite;
+  margin:12px 0;
+  animation:float 1.2s infinite;
 }
 
 @keyframes float{
@@ -114,16 +137,60 @@ button:hover{
   50%{transform:translateY(-15px)}
 }
 
+/* Candle flame */
+.flame{
+  position:absolute;
+  top:-20px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:26px;
+  animation:flicker 0.15s infinite alternate;
+  filter:drop-shadow(0 0 8px orange);
+}
+
+@keyframes flicker{
+  0%{transform:translateX(-50%) scale(1) rotate(-2deg);opacity:0.85;}
+  100%{transform:translateX(-50%) scale(1.15) rotate(2deg);opacity:1;}
+}
+
+/* Smoke */
+.smoke{
+  position:absolute;
+  top:-40px;
+  left:50%;
+  width:6px;
+  height:6px;
+  background:rgba(200,200,200,0.6);
+  border-radius:50%;
+  animation:smoke 2s infinite;
+}
+
+@keyframes smoke{
+  0%{transform:translate(-50%,0) scale(0.5);opacity:0;}
+  50%{opacity:0.5;}
+  100%{transform:translate(-50%,-35px) scale(1.5);opacity:0;}
+}
+
 .bold{
   font-size:20px;
-  font-weight:800;
-  margin-top:8px;
+  font-weight:900;
   color:#00ff99;
+}
+
+/* Blinking cursor */
+.cursor{
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%{opacity:1}
+  50%{opacity:0}
+  100%{opacity:1}
 }
 </style>
 </head>
 
-<body>
+<body class="scanlines">
 
 <canvas id="matrix"></canvas>
 <div class="overlay"></div>
@@ -153,33 +220,35 @@ button:hover{
 <!-- RESULT -->
 <div class="card" id="result">
   <h1 id="wish"></h1>
-  <div id="cake">🎂</div>
+  <div id="cake">
+    🎂
+    <span class="flame">🔥</span>
+    <span class="smoke"></span>
+  </div>
   <div class="bold">BETE KA BIRTHDAY H</div>
 </div>
 
 <script>
-/* ===== MATRIX ===== */
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
-canvas.width=innerWidth;
-canvas.height=innerHeight;
+/* ===== MATRIX BACKGROUND ===== */
+const c=document.getElementById("matrix");
+const ctx=c.getContext("2d");
+c.width=innerWidth;
+c.height=innerHeight;
 
 const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const size=14;
-const cols=canvas.width/size;
+const cols=c.width/size;
 const drops=Array(Math.floor(cols)).fill(1);
 
 function draw(){
   ctx.fillStyle="rgba(0,0,0,0.08)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillRect(0,0,c.width,c.height);
   ctx.fillStyle="#00ff99";
   ctx.font=size+"px monospace";
   for(let i=0;i<drops.length;i++){
     const t=chars[Math.floor(Math.random()*chars.length)];
     ctx.fillText(t,i*size,drops[i]*size);
-    if(drops[i]*size>canvas.height && Math.random()>0.98){
-      drops[i]=0;
-    }
+    if(drops[i]*size>c.height && Math.random()>0.98) drops[i]=0;
     drops[i]++;
   }
 }
@@ -194,10 +263,9 @@ const introLines=[
 ];
 
 let idx=0;
-const box=document.getElementById("introText");
-
+const introBox=document.getElementById("introText");
 const introTimer=setInterval(()=>{
-  box.innerHTML+=introLines[idx]+"<br>";
+  introBox.innerHTML+=introLines[idx]+"<br>";
   idx++;
   if(idx===introLines.length){
     clearInterval(introTimer);
@@ -205,9 +273,31 @@ const introTimer=setInterval(()=>{
       document.getElementById("intro").style.display="none";
       document.getElementById("formBox").style.display="block";
       document.getElementById("bgmusic").play();
-    },800);
+    },700);
   }
 },700);
+
+/* ===== TYPING EFFECT ===== */
+function typeText(el,text){
+  el.innerHTML="";
+  let i=0;
+  const cursor=document.createElement("span");
+  cursor.textContent="|";
+  cursor.className="cursor";
+  el.appendChild(cursor);
+
+  const typer=setInterval(()=>{
+    if(i<text.length){
+      cursor.insertAdjacentHTML(
+        "beforebegin",
+        text[i]==="\n"?"<br>":text[i]
+      );
+      i++;
+    }else{
+      clearInterval(typer);
+    }
+  },70);
+}
 
 /* ===== MAIN ===== */
 function start(){
@@ -221,8 +311,10 @@ function start(){
 
   document.getElementById("formBox").style.display="none";
   document.getElementById("result").style.display="block";
-  document.getElementById("wish").innerHTML=
-    "Happy "+age+"th Birthday<br>"+name;
+  typeText(
+    document.getElementById("wish"),
+    "Happy "+age+"th Birthday\n"+name
+  );
   document.getElementById("blast").play();
 }
 </script>
