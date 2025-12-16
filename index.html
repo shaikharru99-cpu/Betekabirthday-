@@ -1,34 +1,161 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>System Alert</title>
+<meta charset="UTF-8">
+<title>Birthday Surprise 🎉</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body{
+  height:100vh;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  overflow:hidden;
+}
+
+.container{
+  background: rgba(0,0,0,0.6);
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+  width:90%;
+  max-width:400px;
+  box-shadow:0 0 30px cyan;
+  animation: pop 1s ease;
+}
+
+@keyframes pop{
+  from{transform:scale(0);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+h1{
+  margin-bottom:15px;
+  color:#00fff7;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+  outline:none;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#00fff7;
+  color:black;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:white;
+}
+
+#cake{
+  display:none;
+  font-size:100px;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-20px)}
+}
+
+.bold{
+  font-size:24px;
+  font-weight:900;
+  color:yellow;
+  margin-top:10px;
+  text-shadow:0 0 10px red;
+}
+
+.confetti{
+  position:fixed;
+  width:10px;
+  height:10px;
+  background:red;
+  animation: fall 3s linear infinite;
+}
+
+@keyframes fall{
+  from{top:-10px}
+  to{top:100vh}
+}
+</style>
 </head>
 
-<body style="background:black; color:lime; font-family:monospace; text-align:center;">
+<body>
 
-<h2 id="screen"></h2>
+<!-- Background music -->
+<audio id="bgmusic" autoplay loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Birthday sound -->
+<audio id="blast">
+  <source src="blast.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container" id="formBox">
+  <h1>🎂 Birthday Entry 🎂</h1>
+  <input type="text" id="name" placeholder="Apna naam likh 😎">
+  <input type="number" id="age" placeholder="Apni age likh 🎉">
+  <button onclick="start()">ENTER</button>
+</div>
+
+<div class="container" id="result" style="display:none">
+  <h1 id="wish"></h1>
+  <div id="cake">🎂</div>
+  <div class="bold">BETE KA BIRTHDAY H 🎉🔥</div>
+</div>
 
 <script>
-let text = [
-  "Initializing system...",
-  "Connecting to birthday server...",
-  "Accessing private data...",
-  "Name detected: LEGEND 😎",
-  "Age unlocked 🔓",
-  "WARNING ⚠️",
-  "Today is your BIRTHDAY 🎂",
-  "🎉🎉 HAPPY BIRTHDAY BRO 🎉🎉",
-  "Party kaha hai? 😈"
-];
+function start(){
+  let name = document.getElementById("name").value;
+  let age = document.getElementById("age").value;
 
-let i = 0;
-let screen = document.getElementById("screen");
+  if(name=="" || age==""){
+    alert("Naam aur age dono bhar 😑");
+    return;
+  }
 
-let interval = setInterval(() => {
-  screen.innerHTML += text[i] + "<br>";
-  i++;
-  if (i === text.length) clearInterval(interval);
-}, 1000);
+  document.getElementById("formBox").style.display="none";
+  document.getElementById("result").style.display="block";
+
+  document.getElementById("wish").innerHTML =
+    "🎉 Happy " + age + "th Birthday " + name + " 🎉";
+
+  document.getElementById("cake").style.display="block";
+  document.getElementById("blast").play();
+
+  for(let i=0;i<50;i++){
+    let conf = document.createElement("div");
+    conf.className="confetti";
+    conf.style.left=Math.random()*100+"vw";
+    conf.style.background=`hsl(${Math.random()*360},100%,50%)`;
+    conf.style.animationDuration=(Math.random()*3+2)+"s";
+    document.body.appendChild(conf);
+  }
+}
 </script>
 
 </body>
