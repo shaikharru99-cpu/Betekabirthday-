@@ -14,33 +14,57 @@
 
 body{
   height:100vh;
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  overflow:hidden;
+  background:black;
+  color:white;
+}
+
+/* ===== HACKER BACKGROUND ===== */
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+}
+
+/* ===== INTRO ===== */
+#intro{
+  position:fixed;
+  inset:0;
+  background:black;
   display:flex;
   justify-content:center;
   align-items:center;
-  color:white;
-  overflow:hidden;
+  z-index:10;
 }
 
+#introText{
+  color:#00ff00;
+  font-family:monospace;
+  font-size:16px;
+  text-align:center;
+}
+
+/* ===== UI ===== */
 .container{
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.65);
   padding:25px;
   border-radius:20px;
   text-align:center;
   width:90%;
   max-width:400px;
-  box-shadow:0 0 30px cyan;
+  margin:auto;
+  box-shadow:0 0 25px #00ffcc;
   animation: pop 1s ease;
 }
 
 @keyframes pop{
-  from{transform:scale(0);opacity:0}
+  from{transform:scale(0.8);opacity:0}
   to{transform:scale(1);opacity:1}
 }
 
 h1{
   margin-bottom:15px;
-  color:#00fff7;
+  color:#00ffcc;
 }
 
 input{
@@ -58,7 +82,7 @@ button{
   padding:12px;
   border:none;
   border-radius:10px;
-  background:#00fff7;
+  background:#00ffcc;
   color:black;
   font-size:18px;
   font-weight:bold;
@@ -83,55 +107,126 @@ button:hover{
 .bold{
   font-size:24px;
   font-weight:900;
-  color:yellow;
+  color:#00ff00;
   margin-top:10px;
-  text-shadow:0 0 10px red;
-}
-
-.confetti{
-  position:fixed;
-  width:10px;
-  height:10px;
-  background:red;
-  animation: fall 3s linear infinite;
-}
-
-@keyframes fall{
-  from{top:-10px}
-  to{top:100vh}
+  text-shadow:0 0 10px #00ff00;
 }
 </style>
 </head>
 
 <body>
 
-<!-- Background music -->
-<audio id="bgmusic" autoplay loop>
+<!-- Hacker background -->
+<canvas id="matrix"></canvas>
+
+<!-- Intro -->
+<div id="intro">
+  <div id="introText"></div>
+</div>
+
+<!-- Audio -->
+<audio id="bgmusic" loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Birthday sound -->
 <audio id="blast">
   <source src="blast.mp3" type="audio/mpeg">
 </audio>
 
-<div class="container" id="formBox">
+<!-- Form -->
+<div class="container" id="formBox" style="display:none">
   <h1>🎂 Birthday Entry 🎂</h1>
-  <input type="text" id="name" placeholder="Apna naam likh 😎">
-  <input type="number" id="age" placeholder="Apni age likh 🎉">
+  <input type="text" id="name" placeholder="Naam likh 😎">
+  <input type="number" id="age" placeholder="Age likh 🎉">
   <button onclick="start()">ENTER</button>
 </div>
 
+<!-- Result -->
 <div class="container" id="result" style="display:none">
   <h1 id="wish"></h1>
   <div id="cake">🎂</div>
-  <div class="bold">BETE KA BIRTHDAY H 🎉🔥</div>
+  <div class="bold">BETE KA BIRTHDAY H 🎉</div>
 </div>
 
 <script>
+/* ===== MATRIX BACKGROUND ===== */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = [];
+
+for(let x=0;x<columns;x++) drops[x]=1;
+
+function draw(){
+  ctx.fillStyle="rgba(0,0,0,0.05)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle="#00ff00";
+  ctx.font=fontSize+"px monospace";
+
+  for(let i=0;i<drops.length;i++){
+    const text = letters[Math.floor(Math.random()*letters.length)];
+    ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+    if(drops[i]*fontSize > canvas.height && Math.random() > 0.975){
+      drops[i]=0;
+    }
+    drops[i]++;
+  }
+}
+setInterval(draw,50);
+
+/* ===== INTRO TEXT ===== */
+const introLines = [
+  "Initializing system...",
+  "Connecting to birthday server...",
+  "Access granted ✔"
+];
+
+let i=0;
+const introBox = document.getElementById("introText");
+
+const introInterval = setInterval(()=>{
+  introBox.innerHTML += introLines[i] + "<br>";
+  i++;
+  if(i===introLines.length){
+    clearInterval(introInterval);
+    setTimeout(()=>{
+      document.getElementById("intro").style.display="none";
+      document.getElementById("formBox").style.display="block";
+      document.getElementById("bgmusic").play();
+    },1000);
+  }
+},700);
+
+/* ===== MAIN LOGIC ===== */
 function start(){
-  let name = document.getElementById("name").value;
-  let age = document.getElementById("age").value;
+  let name=document.getElementById("name").value;
+  let age=document.getElementById("age").value;
+
+  if(name=="" || age==""){
+    alert("Naam aur age dono bhar");
+    return;
+  }
+
+  document.getElementById("formBox").style.display="none";
+  document.getElementById("result").style.display="block";
+
+  document.getElementById("wish").innerHTML =
+    "🎉 Happy "+age+"th Birthday "+name+" 🎉";
+
+  document.getElementById("cake").style.display="block";
+  document.getElementById("blast").play();
+}
+</script>
+
+</body>
+</html>  let age = document.getElementById("age").value;
 
   if(name=="" || age==""){
     alert("Naam aur age dono bhar 😑");
