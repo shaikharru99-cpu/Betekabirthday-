@@ -3,14 +3,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Secure Birthday Access</title>
+<title>Birthday Surprise</title>
 
 <style>
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: "Segoe UI", monospace;
+  font-family:"Segoe UI", monospace;
 }
 
 body{
@@ -20,14 +20,11 @@ body{
   color:#00ff99;
 }
 
-/* ===== MATRIX BACKGROUND ===== */
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:0;
-}
+/* BACKGROUNDS */
+#matrix,#fireworks{position:fixed;inset:0}
+#matrix{z-index:0}
+#fireworks{z-index:5;pointer-events:none}
 
-/* Dark overlay */
 .overlay{
   position:fixed;
   inset:0;
@@ -35,288 +32,230 @@ canvas{
   z-index:1;
 }
 
-/* Scanlines */
-.scanlines::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.03),
-    rgba(255,255,255,0.03) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  pointer-events:none;
-  z-index:2;
-}
-
-/* ===== INTRO ===== */
-#intro{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:3;
-}
-
-#introText{
-  font-size:15px;
-  line-height:1.6;
-  max-width:420px;
-}
-
-/* ===== CENTER CARD ===== */
+/* CARD */
 .card{
   position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
   z-index:3;
   width:90%;
-  max-width:380px;
-  background:rgba(0,0,0,0.8);
+  max-width:440px;
+  background:rgba(0,0,0,0.88);
   border:1px solid #00ff99;
-  border-radius:12px;
-  padding:22px;
+  border-radius:14px;
+  padding:26px;
   text-align:center;
-  box-shadow:0 0 15px #00ff99;
-  animation:pulse 2s infinite;
+  box-shadow:0 0 28px #00ff99;
   display:none;
 }
 
-@keyframes pulse{
-  0%{box-shadow:0 0 10px #00ff99}
-  50%{box-shadow:0 0 25px #00ffaa}
-  100%{box-shadow:0 0 10px #00ff99}
-}
-
-.card h1{
-  font-size:18px;
-  margin-bottom:15px;
-  color:#00ffcc;
-}
+h1{color:#00ffcc;margin-bottom:14px}
 
 input{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin:8px 0;
   background:black;
   border:1px solid #00ff99;
   color:#00ff99;
   border-radius:6px;
-  outline:none;
+  font-size:16px;
 }
 
 button{
   width:100%;
-  margin-top:10px;
-  padding:10px;
+  margin-top:14px;
+  padding:12px;
   background:#00ff99;
   border:none;
   border-radius:6px;
   font-weight:bold;
   cursor:pointer;
 }
+button:hover{background:#00ffaa}
 
-button:hover{
-  background:#00ffaa;
-}
-
-/* ===== RESULT ===== */
+/* CAKE */
 #cake{
   position:relative;
   font-size:90px;
-  margin:12px 0;
+  margin:18px 0;
   animation:float 1.2s infinite;
 }
-
 @keyframes float{
   0%,100%{transform:translateY(0)}
   50%{transform:translateY(-15px)}
 }
-
-/* Candle flame */
 .flame{
   position:absolute;
-  top:-20px;
-  left:50%;
+  top:-18px;left:50%;
   transform:translateX(-50%);
   font-size:26px;
-  animation:flicker 0.15s infinite alternate;
-  filter:drop-shadow(0 0 8px orange);
+  animation:flicker .15s infinite alternate;
 }
-
 @keyframes flicker{
-  0%{transform:translateX(-50%) scale(1) rotate(-2deg);opacity:0.85;}
-  100%{transform:translateX(-50%) scale(1.15) rotate(2deg);opacity:1;}
+  0%{opacity:.8;transform:translateX(-50%) scale(1)}
+  100%{opacity:1;transform:translateX(-50%) scale(1.15)}
 }
 
-/* Smoke */
-.smoke{
-  position:absolute;
-  top:-40px;
-  left:50%;
-  width:6px;
-  height:6px;
-  background:rgba(200,200,200,0.6);
-  border-radius:50%;
-  animation:smoke 2s infinite;
+/* SHAYARI */
+#shayariText{
+  font-size:30px;
+  line-height:1.7;
+  font-weight:700;
+  color:#ffd700;
+  text-shadow:0 0 12px #ffd700;
 }
 
-@keyframes smoke{
-  0%{transform:translate(-50%,0) scale(0.5);opacity:0;}
-  50%{opacity:0.5;}
-  100%{transform:translate(-50%,-35px) scale(1.5);opacity:0;}
-}
-
-.bold{
-  font-size:20px;
-  font-weight:900;
-  color:#00ff99;
-}
-
-/* Blinking cursor */
-.cursor{
-  animation:blink 1s infinite;
-}
-
+/* CURSOR */
+.cursor{animation:blink 1s infinite}
 @keyframes blink{
-  0%{opacity:1}
-  50%{opacity:0}
-  100%{opacity:1}
+  0%{opacity:1}50%{opacity:0}100%{opacity:1}
 }
+
+.bold{font-size:22px;font-weight:900}
 </style>
 </head>
 
-<body class="scanlines">
+<body>
 
 <canvas id="matrix"></canvas>
+<canvas id="fireworks"></canvas>
 <div class="overlay"></div>
-
-<!-- INTRO -->
-<div id="intro">
-  <div id="introText"></div>
-</div>
 
 <!-- AUDIO -->
 <audio id="bgmusic" loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
-
 <audio id="blast">
   <source src="blast.mp3" type="audio/mpeg">
 </audio>
 
+<!-- Hacker typing sound (no extra file needed) -->
+<audio id="typeSound">
+  <source src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=">
+</audio>
+
 <!-- FORM -->
 <div class="card" id="formBox">
-  <h1>SECURE BIRTHDAY ACCESS</h1>
-  <input id="name" placeholder="Enter name">
-  <input id="age" type="number" placeholder="Enter age">
-  <button onclick="start()">VERIFY</button>
+  <h1>Birthday Entry</h1>
+  <input id="nameInput" placeholder="Naam likh">
+  <input id="ageInput" type="number" placeholder="Age likh">
+  <button onclick="start()">ENTER</button>
 </div>
 
-<!-- RESULT -->
-<div class="card" id="result">
+<!-- CAKE -->
+<div class="card" id="cakeBox">
   <h1 id="wish"></h1>
-  <div id="cake">
-    🎂
-    <span class="flame">🔥</span>
-    <span class="smoke"></span>
-  </div>
+  <div id="cake">🎂 <span class="flame">🔥</span></div>
   <div class="bold">BETE KA BIRTHDAY H</div>
+  <button onclick="cutCake()">CUT CAKE 🎂</button>
+</div>
+
+<!-- SHAYARI -->
+<div class="card" id="shayariBox">
+  <div id="shayariText"></div>
 </div>
 
 <script>
-/* ===== MATRIX BACKGROUND ===== */
-const c=document.getElementById("matrix");
-const ctx=c.getContext("2d");
-c.width=innerWidth;
-c.height=innerHeight;
-
-const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const size=14;
-const cols=c.width/size;
-const drops=Array(Math.floor(cols)).fill(1);
-
-function draw(){
-  ctx.fillStyle="rgba(0,0,0,0.08)";
-  ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle="#00ff99";
-  ctx.font=size+"px monospace";
-  for(let i=0;i<drops.length;i++){
-    const t=chars[Math.floor(Math.random()*chars.length)];
-    ctx.fillText(t,i*size,drops[i]*size);
-    if(drops[i]*size>c.height && Math.random()>0.98) drops[i]=0;
+/* MATRIX */
+const mc=matrix.getContext("2d");
+matrix.width=innerWidth;matrix.height=innerHeight;
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ",size=14;
+const drops=Array(Math.floor(matrix.width/size)).fill(1);
+setInterval(()=>{
+  mc.fillStyle="rgba(0,0,0,0.08)";
+  mc.fillRect(0,0,matrix.width,matrix.height);
+  mc.fillStyle="#00ff99";
+  mc.font=size+"px monospace";
+  drops.forEach((d,i)=>{
+    mc.fillText(chars[Math.random()*chars.length|0],i*size,d*size);
+    if(d*size>matrix.height&&Math.random()>.98)drops[i]=0;
     drops[i]++;
+  });
+},50);
+
+/* FIREWORKS */
+const fc=fireworks.getContext("2d");
+fireworks.width=innerWidth;fireworks.height=innerHeight;
+let sparks=[];
+function boom(x,y){
+  for(let i=0;i<60;i++){
+    sparks.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:60});
   }
 }
-setInterval(draw,50);
+(function fw(){
+  fc.clearRect(0,0,fireworks.width,fireworks.height);
+  sparks.forEach((p,i)=>{
+    p.x+=p.vx;p.y+=p.vy;p.life--;
+    fc.fillStyle="gold";
+    fc.fillRect(p.x,p.y,3,3);
+    if(p.life<=0)sparks.splice(i,1);
+  });
+  requestAnimationFrame(fw);
+})();
 
-/* ===== INTRO ===== */
-const introLines=[
-  "> Initializing secure environment...",
-  "> Verifying access credentials...",
-  "> Birthday protocol loaded.",
-  "> Access granted."
-];
-
-let idx=0;
-const introBox=document.getElementById("introText");
-const introTimer=setInterval(()=>{
-  introBox.innerHTML+=introLines[idx]+"<br>";
-  idx++;
-  if(idx===introLines.length){
-    clearInterval(introTimer);
-    setTimeout(()=>{
-      document.getElementById("intro").style.display="none";
-      document.getElementById("formBox").style.display="block";
-      document.getElementById("bgmusic").play();
-    },700);
-  }
-},700);
-
-/* ===== TYPING EFFECT ===== */
-function typeText(el,text){
+/* TYPING EFFECT */
+function typeText(el,text,cb){
   el.innerHTML="";
   let i=0;
-  const cursor=document.createElement("span");
-  cursor.textContent="|";
-  cursor.className="cursor";
-  el.appendChild(cursor);
-
-  const typer=setInterval(()=>{
+  const cur=document.createElement("span");
+  cur.textContent="|";cur.className="cursor";
+  el.appendChild(cur);
+  const t=setInterval(()=>{
     if(i<text.length){
-      cursor.insertAdjacentHTML(
-        "beforebegin",
-        text[i]==="\n"?"<br>":text[i]
-      );
+      cur.insertAdjacentHTML("beforebegin",text[i]==="\n"?"<br>":text[i]);
       i++;
     }else{
-      clearInterval(typer);
+      clearInterval(t);
+      if(cb)setTimeout(cb,1200);
     }
-  },70);
+  },140);
 }
 
-/* ===== MAIN ===== */
+/* 🔥 HACKER INPUT SOUND */
+const typeSound=document.getElementById("typeSound");
+[nameInput,ageInput].forEach(inp=>{
+  inp.addEventListener("keydown",()=>{
+    typeSound.currentTime=0;
+    typeSound.play();
+  });
+});
+
+/* FLOW */
 function start(){
-  const name=document.getElementById("name").value;
-  const age=document.getElementById("age").value;
-
-  if(!name||!age){
-    alert("Details required");
-    return;
-  }
-
-  document.getElementById("formBox").style.display="none";
-  document.getElementById("result").style.display="block";
-  typeText(
-    document.getElementById("wish"),
-    "Happy "+age+"th Birthday\n"+name
-  );
-  document.getElementById("blast").play();
+  if(!nameInput.value||!ageInput.value) return alert("Naam aur age bhar");
+  formBox.style.display="none";
+  cakeBox.style.display="block";
+  bgmusic.volume=0.3;bgmusic.play();
+  blast.play();
+  typeText(wish,"Happy "+ageInput.value+"th Birthday\n"+nameInput.value);
 }
+
+function cutCake(){
+  cakeBox.style.display="none";
+  shayariBox.style.display="block";
+  const sh=[
+    "Khush raho beta hamesha,\nZindagi tumhe uchaai de 💙",
+    "Sapne tumhare poore ho,\nHar din nayi jeet mile ✨",
+    "Baap ki dua saath hai,\nNaam roshan karte raho 🔥"
+  ];
+  let i=0;
+  (function next(){
+    if(i<sh.length){
+      typeText(shayariText,sh[i],()=>{
+        if(i===sh.length-1){
+          boom(innerWidth/2,innerHeight/3);
+          boom(innerWidth/3,innerHeight/2);
+          boom(innerWidth*0.7,innerHeight/2);
+        }
+        i++;next();
+      });
+    }
+  })();
+}
+
+/* INIT */
+formBox.style.display="block";
 </script>
 
 </body>
