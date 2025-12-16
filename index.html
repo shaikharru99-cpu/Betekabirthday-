@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,112 +5,57 @@
 <title>Birthday Surprise</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:"Segoe UI", monospace;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",monospace;}
+body{height:100vh;background:black;overflow:hidden;color:#00ff99}
 
-body{
-  height:100vh;
-  background:black;
-  overflow:hidden;
-  color:#00ff99;
-}
-
-/* BACKGROUNDS */
+/* BACKGROUND */
 #matrix,#fireworks{position:fixed;inset:0}
 #matrix{z-index:0}
 #fireworks{z-index:5;pointer-events:none}
-
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.65);
-  z-index:1;
-}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1}
 
 /* CARD */
 .card{
-  position:fixed;
-  top:50%;left:50%;
+  position:fixed;top:50%;left:50%;
   transform:translate(-50%,-50%);
-  z-index:3;
-  width:90%;
-  max-width:440px;
-  background:rgba(0,0,0,0.88);
-  border:1px solid #00ff99;
-  border-radius:14px;
-  padding:26px;
-  text-align:center;
-  box-shadow:0 0 28px #00ff99;
-  display:none;
+  z-index:3;width:90%;max-width:440px;
+  background:rgba(0,0,0,.88);
+  border:1px solid #00ff99;border-radius:14px;
+  padding:26px;text-align:center;
+  box-shadow:0 0 28px #00ff99;display:none
 }
-
 h1{color:#00ffcc;margin-bottom:14px}
-
 input{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  background:black;
-  border:1px solid #00ff99;
-  color:#00ff99;
-  border-radius:6px;
-  font-size:16px;
+  width:100%;padding:12px;margin:8px 0;
+  background:black;border:1px solid #00ff99;
+  color:#00ff99;border-radius:6px;font-size:16px
 }
-
 button{
-  width:100%;
-  margin-top:14px;
-  padding:12px;
-  background:#00ff99;
-  border:none;
-  border-radius:6px;
-  font-weight:bold;
-  cursor:pointer;
+  width:100%;margin-top:14px;padding:12px;
+  background:#00ff99;border:none;border-radius:6px;
+  font-weight:bold;cursor:pointer
 }
 button:hover{background:#00ffaa}
 
 /* CAKE */
-#cake{
-  position:relative;
-  font-size:90px;
-  margin:18px 0;
-  animation:float 1.2s infinite;
-}
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-15px)}
-}
+#cake{position:relative;font-size:90px;margin:18px 0;animation:float 1.2s infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
 .flame{
-  position:absolute;
-  top:-18px;left:50%;
-  transform:translateX(-50%);
-  font-size:26px;
-  animation:flicker .15s infinite alternate;
+  position:absolute;top:-18px;left:50%;
+  transform:translateX(-50%);font-size:26px;
+  animation:flicker .15s infinite alternate
 }
-@keyframes flicker{
-  0%{opacity:.8;transform:translateX(-50%) scale(1)}
-  100%{opacity:1;transform:translateX(-50%) scale(1.15)}
-}
+@keyframes flicker{0%{opacity:.8}100%{opacity:1;transform:translateX(-50%) scale(1.15)}}
 
 /* SHAYARI */
 #shayariText{
-  font-size:30px;
-  line-height:1.7;
-  font-weight:700;
-  color:#ffd700;
-  text-shadow:0 0 12px #ffd700;
+  font-size:30px;line-height:1.7;font-weight:700;
+  color:#ffd700;text-shadow:0 0 12px #ffd700
 }
 
 /* CURSOR */
 .cursor{animation:blink 1s infinite}
-@keyframes blink{
-  0%{opacity:1}50%{opacity:0}100%{opacity:1}
-}
-
+@keyframes blink{0%{opacity:1}50%{opacity:0}100%{opacity:1}}
 .bold{font-size:22px;font-weight:900}
 </style>
 </head>
@@ -122,18 +66,13 @@ button:hover{background:#00ffaa}
 <canvas id="fireworks"></canvas>
 <div class="overlay"></div>
 
-<!-- AUDIO -->
-<audio id="bgmusic" loop>
-  <source src="song.mp3" type="audio/mpeg">
-</audio>
-<audio id="blast">
-  <source src="blast.mp3" type="audio/mpeg">
-</audio>
+<!-- MUSIC -->
+<audio id="bgmusic" loop src="song.mp3"></audio>
+<audio id="blast" src="blast.mp3"></audio>
 
-<!-- Hacker typing sound (no extra file needed) -->
-<audio id="typeSound">
-  <source src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=">
-</audio>
+<!-- 🔊 LOUD TYPING SOUNDS -->
+<audio id="keySound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
+<audio id="numSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
 
 <!-- FORM -->
 <div class="card" id="formBox">
@@ -158,75 +97,76 @@ button:hover{background:#00ffaa}
 
 <script>
 /* MATRIX */
-const mc=matrix.getContext("2d");
-matrix.width=innerWidth;matrix.height=innerHeight;
+const m=document.getElementById("matrix"),mctx=m.getContext("2d");
+m.width=innerWidth;m.height=innerHeight;
 const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ",size=14;
-const drops=Array(Math.floor(matrix.width/size)).fill(1);
+const drops=Array(Math.floor(m.width/size)).fill(1);
 setInterval(()=>{
-  mc.fillStyle="rgba(0,0,0,0.08)";
-  mc.fillRect(0,0,matrix.width,matrix.height);
-  mc.fillStyle="#00ff99";
-  mc.font=size+"px monospace";
+  mctx.fillStyle="rgba(0,0,0,.08)";
+  mctx.fillRect(0,0,m.width,m.height);
+  mctx.fillStyle="#00ff99";mctx.font=size+"px monospace";
   drops.forEach((d,i)=>{
-    mc.fillText(chars[Math.random()*chars.length|0],i*size,d*size);
-    if(d*size>matrix.height&&Math.random()>.98)drops[i]=0;
+    mctx.fillText(chars[Math.random()*chars.length|0],i*size,d*size);
+    if(d*size>m.height&&Math.random()>.98)drops[i]=0;
     drops[i]++;
   });
 },50);
 
 /* FIREWORKS */
-const fc=fireworks.getContext("2d");
-fireworks.width=innerWidth;fireworks.height=innerHeight;
-let sparks=[];
+const f=document.getElementById("fireworks"),fctx=f.getContext("2d");
+f.width=innerWidth;f.height=innerHeight;let sparks=[];
 function boom(x,y){
-  for(let i=0;i<60;i++){
+  for(let i=0;i<60;i++)
     sparks.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:60});
-  }
 }
 (function fw(){
-  fc.clearRect(0,0,fireworks.width,fireworks.height);
+  fctx.clearRect(0,0,f.width,f.height);
   sparks.forEach((p,i)=>{
     p.x+=p.vx;p.y+=p.vy;p.life--;
-    fc.fillStyle="gold";
-    fc.fillRect(p.x,p.y,3,3);
+    fctx.fillStyle="gold";fctx.fillRect(p.x,p.y,3,3);
     if(p.life<=0)sparks.splice(i,1);
   });
   requestAnimationFrame(fw);
 })();
 
-/* TYPING EFFECT */
+/* 🔊 INPUT TYPING SOUND (LOUD) */
+const keySound=document.getElementById("keySound");
+const numSound=document.getElementById("numSound");
+keySound.volume=1;numSound.volume=1;
+
+nameInput.addEventListener("keydown",()=>{
+  keySound.currentTime=0;keySound.play();
+});
+ageInput.addEventListener("keydown",()=>{
+  numSound.currentTime=0;numSound.play();
+});
+
+/* ⌨️ TYPING EFFECT WITH SOUND */
 function typeText(el,text,cb){
-  el.innerHTML="";
-  let i=0;
+  el.innerHTML="";let i=0;
   const cur=document.createElement("span");
   cur.textContent="|";cur.className="cursor";
   el.appendChild(cur);
+
+  const speed=150;
   const t=setInterval(()=>{
     if(i<text.length){
       cur.insertAdjacentHTML("beforebegin",text[i]==="\n"?"<br>":text[i]);
+      keySound.currentTime=0;keySound.play(); // SHAYARI SOUND
       i++;
     }else{
       clearInterval(t);
       if(cb)setTimeout(cb,1200);
     }
-  },140);
+  },speed);
 }
-
-/* 🔥 HACKER INPUT SOUND */
-const typeSound=document.getElementById("typeSound");
-[nameInput,ageInput].forEach(inp=>{
-  inp.addEventListener("keydown",()=>{
-    typeSound.currentTime=0;
-    typeSound.play();
-  });
-});
 
 /* FLOW */
 function start(){
   if(!nameInput.value||!ageInput.value) return alert("Naam aur age bhar");
   formBox.style.display="none";
   cakeBox.style.display="block";
-  bgmusic.volume=0.3;bgmusic.play();
+  bgmusic.volume=0.35;bgmusic.play();
   blast.play();
   typeText(wish,"Happy "+ageInput.value+"th Birthday\n"+nameInput.value);
 }
