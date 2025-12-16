@@ -2,200 +2,194 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Birthday Surprise</title>
+<title>Dark Hacker Birthday</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",monospace;}
-body{height:100vh;background:black;overflow:hidden;color:#00ff99}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Consolas,monospace}
+body{background:black;color:#00ff99;height:100vh;overflow:hidden}
 
-/* BACKGROUND */
-#matrix,#fireworks{position:fixed;inset:0}
-#matrix{z-index:0}
-#fireworks{z-index:5;pointer-events:none}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1}
+/* BACKGROUND MATRIX */
+canvas{position:fixed;inset:0;z-index:0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1}
 
-/* CARD */
-.card{
+/* CENTER BOX */
+.box{
   position:fixed;top:50%;left:50%;
   transform:translate(-50%,-50%);
-  z-index:3;width:90%;max-width:440px;
-  background:rgba(0,0,0,.88);
-  border:1px solid #00ff99;border-radius:14px;
-  padding:26px;text-align:center;
-  box-shadow:0 0 28px #00ff99;display:none
+  z-index:2;width:90%;max-width:420px;
+  background:rgba(0,0,0,.9);
+  border:1px solid #00ff99;
+  border-radius:14px;
+  padding:25px;
+  text-align:center;
+  box-shadow:0 0 25px #00ff99;
+  display:none
 }
-h1{color:#00ffcc;margin-bottom:14px}
+
+h1{margin-bottom:15px;color:#00ffcc}
 input{
   width:100%;padding:12px;margin:8px 0;
   background:black;border:1px solid #00ff99;
-  color:#00ff99;border-radius:6px;font-size:16px
+  color:#00ff99;border-radius:6px
 }
 button{
-  width:100%;margin-top:14px;padding:12px;
+  width:100%;padding:12px;margin-top:12px;
   background:#00ff99;border:none;border-radius:6px;
   font-weight:bold;cursor:pointer
 }
 button:hover{background:#00ffaa}
 
 /* CAKE */
-#cake{position:relative;font-size:90px;margin:18px 0;animation:float 1.2s infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
-.flame{
-  position:absolute;top:-18px;left:50%;
-  transform:translateX(-50%);font-size:26px;
-  animation:flicker .15s infinite alternate
+#cake{
+  font-size:90px;
+  animation:float 1.5s infinite;
 }
-@keyframes flicker{0%{opacity:.8}100%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-15px)}
+}
+
+/* CAKE CUT */
+.slice{
+  font-size:60px;
+  display:inline-block;
+  animation:explode .8s forwards;
+}
+@keyframes explode{
+  to{transform:translate(var(--x),var(--y)) rotate(30deg)}
+}
 
 /* SHAYARI */
-#shayariText{
-  font-size:30px;line-height:1.7;font-weight:700;
-  color:#ffd700;text-shadow:0 0 12px #ffd700
+#shayari{
+  font-size:26px;
+  line-height:1.6;
+  color:#ffd700;
+  text-shadow:0 0 10px gold
 }
 
-/* CURSOR */
-.cursor{animation:blink 1s infinite}
-@keyframes blink{0%{opacity:1}50%{opacity:0}100%{opacity:1}}
-.bold{font-size:22px;font-weight:900}
+/* FIREWORKS */
+.fire{
+  position:fixed;
+  width:6px;height:6px;
+  background:gold;
+  animation:fire 1s forwards;
+}
+@keyframes fire{
+  to{transform:translate(var(--x),var(--y));opacity:0}
+}
 </style>
 </head>
 
 <body>
 
 <canvas id="matrix"></canvas>
-<canvas id="fireworks"></canvas>
 <div class="overlay"></div>
 
-<!-- MUSIC -->
-<audio id="bgmusic" loop src="song.mp3"></audio>
-<audio id="blast" src="blast.mp3"></audio>
+<audio id="music" src="music.mp3" loop></audio>
 
-<!-- 🔊 LOUD TYPING SOUNDS -->
-<audio id="keySound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
-<audio id="numSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
+<!-- OPEN -->
+<div class="box" id="openBox">
+  <h1>OPEN</h1>
+  <button onclick="openSite()">OPEN</button>
+</div>
 
-<!-- FORM -->
-<div class="card" id="formBox">
-  <h1>Birthday Entry</h1>
-  <input id="nameInput" placeholder="Naam likh">
-  <input id="ageInput" type="number" placeholder="Age likh">
-  <button onclick="start()">ENTER</button>
+<!-- NAME -->
+<div class="box" id="nameBox">
+  <h1>Enter Name</h1>
+  <input id="name">
+  <button onclick="nextAge()">NEXT</button>
+</div>
+
+<!-- AGE -->
+<div class="box" id="ageBox">
+  <h1>Enter Age</h1>
+  <input id="age" type="number">
+  <button onclick="showCake()">NEXT</button>
 </div>
 
 <!-- CAKE -->
-<div class="card" id="cakeBox">
-  <h1 id="wish"></h1>
-  <div id="cake">🎂 <span class="flame">🔥</span></div>
-  <div class="bold">BETE KA BIRTHDAY H</div>
-  <button onclick="cutCake()">CUT CAKE 🎂</button>
+<div class="box" id="cakeBox">
+  <h1>Aaj mere bete ka birthday hai</h1>
+  <div id="cake">🎂</div>
+  <button onclick="cutCake()">Cake kaat de, kitna intezaar karwayega</button>
 </div>
 
 <!-- SHAYARI -->
-<div class="card" id="shayariBox">
-  <div id="shayariText"></div>
+<div class="box" id="shayariBox">
+  <div id="shayari"></div>
 </div>
 
 <script>
 /* MATRIX */
-const m=document.getElementById("matrix"),mctx=m.getContext("2d");
-m.width=innerWidth;m.height=innerHeight;
-const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ",size=14;
-const drops=Array(Math.floor(m.width/size)).fill(1);
+const c=matrix.getContext("2d");
+matrix.width=innerWidth;matrix.height=innerHeight;
+const drops=Array(200).fill(1);
 setInterval(()=>{
-  mctx.fillStyle="rgba(0,0,0,.08)";
-  mctx.fillRect(0,0,m.width,m.height);
-  mctx.fillStyle="#00ff99";mctx.font=size+"px monospace";
-  drops.forEach((d,i)=>{
-    mctx.fillText(chars[Math.random()*chars.length|0],i*size,d*size);
-    if(d*size>m.height&&Math.random()>.98)drops[i]=0;
-    drops[i]++;
+  c.fillStyle="rgba(0,0,0,.1)";
+  c.fillRect(0,0,matrix.width,matrix.height);
+  c.fillStyle="#00ff99";
+  drops.forEach((y,i)=>{
+    c.fillText("01"[Math.random()*2|0],i*10,y*10);
+    drops[i]=y*10>matrix.height?0:y+1;
   });
 },50);
 
-/* FIREWORKS */
-const f=document.getElementById("fireworks"),fctx=f.getContext("2d");
-f.width=innerWidth;f.height=innerHeight;let sparks=[];
-function boom(x,y){
-  for(let i=0;i<60;i++)
-    sparks.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:60});
-}
-(function fw(){
-  fctx.clearRect(0,0,f.width,f.height);
-  sparks.forEach((p,i)=>{
-    p.x+=p.vx;p.y+=p.vy;p.life--;
-    fctx.fillStyle="gold";fctx.fillRect(p.x,p.y,3,3);
-    if(p.life<=0)sparks.splice(i,1);
-  });
-  requestAnimationFrame(fw);
-})();
-
-/* 🔊 INPUT TYPING SOUND (LOUD) */
-const keySound=document.getElementById("keySound");
-const numSound=document.getElementById("numSound");
-keySound.volume=1;numSound.volume=1;
-
-nameInput.addEventListener("keydown",()=>{
-  keySound.currentTime=0;keySound.play();
-});
-ageInput.addEventListener("keydown",()=>{
-  numSound.currentTime=0;numSound.play();
-});
-
-/* ⌨️ TYPING EFFECT WITH SOUND */
-function typeText(el,text,cb){
-  el.innerHTML="";let i=0;
-  const cur=document.createElement("span");
-  cur.textContent="|";cur.className="cursor";
-  el.appendChild(cur);
-
-  const speed=150;
-  const t=setInterval(()=>{
-    if(i<text.length){
-      cur.insertAdjacentHTML("beforebegin",text[i]==="\n"?"<br>":text[i]);
-      keySound.currentTime=0;keySound.play(); // SHAYARI SOUND
-      i++;
-    }else{
-      clearInterval(t);
-      if(cb)setTimeout(cb,1200);
-    }
-  },speed);
-}
-
 /* FLOW */
-function start(){
-  if(!nameInput.value||!ageInput.value) return alert("Naam aur age bhar");
-  formBox.style.display="none";
+openBox.style.display="block";
+
+function openSite(){
+  music.volume=0.5;
+  music.play();
+  openBox.style.display="none";
+  nameBox.style.display="block";
+}
+
+function nextAge(){
+  if(!name.value)return;
+  nameBox.style.display="none";
+  ageBox.style.display="block";
+}
+
+function showCake(){
+  if(!age.value)return;
+  ageBox.style.display="none";
   cakeBox.style.display="block";
-  bgmusic.volume=0.35;bgmusic.play();
-  blast.play();
-  typeText(wish,"Happy "+ageInput.value+"th Birthday\n"+nameInput.value);
 }
 
 function cutCake(){
-  cakeBox.style.display="none";
-  shayariBox.style.display="block";
-  const sh=[
-    "Khush raho beta hamesha,\nZindagi tumhe uchaai de 💙",
-    "Sapne tumhare poore ho,\nHar din nayi jeet mile ✨",
-    "Baap ki dua saath hai,\nNaam roshan karte raho 🔥"
-  ];
-  let i=0;
-  (function next(){
-    if(i<sh.length){
-      typeText(shayariText,sh[i],()=>{
-        if(i===sh.length-1){
-          boom(innerWidth/2,innerHeight/3);
-          boom(innerWidth/3,innerHeight/2);
-          boom(innerWidth*0.7,innerHeight/2);
-        }
-        i++;next();
-      });
-    }
-  })();
+  cake.innerHTML="";
+  for(let i=0;i<4;i++){
+    const s=document.createElement("div");
+    s.className="slice";
+    s.textContent="🍰";
+    s.style.setProperty("--x",(Math.random()*200-100)+"px");
+    s.style.setProperty("--y",(Math.random()*200-100)+"px");
+    cake.appendChild(s);
+  }
+  setTimeout(showShayari,1000);
 }
 
-/* INIT */
-formBox.style.display="block";
+function showShayari(){
+  cakeBox.style.display="none";
+  shayariBox.style.display="block";
+  shayari.innerHTML=
+  "Khush raho beta hamesha,<br>Baap ki dua tumhare saath hai ❤️";
+  fireworks();
+}
+
+/* FIREWORKS */
+function fireworks(){
+  for(let i=0;i<30;i++){
+    const f=document.createElement("div");
+    f.className="fire";
+    f.style.left="50%";
+    f.style.top="50%";
+    f.style.setProperty("--x",(Math.random()*400-200)+"px");
+    f.style.setProperty("--y",(Math.random()*400-200)+"px");
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),1000);
+  }
+}
 </script>
 
 </body>
