@@ -2,194 +2,221 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dark Hacker Birthday</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECURE TERMINAL</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Consolas,monospace}
-body{background:black;color:#00ff99;height:100vh;overflow:hidden}
-
-/* BACKGROUND MATRIX */
-canvas{position:fixed;inset:0;z-index:0}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1}
-
-/* CENTER BOX */
-.box{
-  position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  z-index:2;width:90%;max-width:420px;
-  background:rgba(0,0,0,.9);
-  border:1px solid #00ff99;
-  border-radius:14px;
-  padding:25px;
-  text-align:center;
-  box-shadow:0 0 25px #00ff99;
-  display:none
+*{box-sizing:border-box}
+body{
+  margin:0;height:100vh;background:#000;color:#00ff9c;
+  font-family:"Courier New",monospace;
+  display:flex;justify-content:center;align-items:center;overflow:hidden
 }
+canvas{position:fixed;top:0;left:0;z-index:0}
 
-h1{margin-bottom:15px;color:#00ffcc}
-input{
-  width:100%;padding:12px;margin:8px 0;
-  background:black;border:1px solid #00ff99;
-  color:#00ff99;border-radius:6px
+.terminal{
+  position:relative;z-index:1;width:100%;max-width:460px;
+  background:rgba(0,0,0,.95);border-radius:14px;
+  box-shadow:0 0 50px rgba(0,255,156,.6);padding:22px;
+  text-align:center
 }
-button{
-  width:100%;padding:12px;margin-top:12px;
-  background:#00ff99;border:none;border-radius:6px;
-  font-weight:bold;cursor:pointer
-}
-button:hover{background:#00ffaa}
+.hidden{display:none}
 
-/* CAKE */
-#cake{
-  font-size:90px;
-  animation:float 1.5s infinite;
-}
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-15px)}
+.title{font-size:1.1rem;margin-bottom:8px}
+.blink::after{content:"▮";animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+
+.log{
+  font-size:.9rem;margin-top:10px;
+  white-space:pre-line;min-height:160px;text-align:left
 }
 
-/* CAKE CUT */
-.slice{
-  font-size:60px;
-  display:inline-block;
-  animation:explode .8s forwards;
+input,button{
+  width:100%;margin-top:14px;padding:12px;
+  background:#000;border:1px solid #00ff9c;
+  color:#00ff9c;border-radius:8px;
+  font-family:inherit;text-align:center
 }
-@keyframes explode{
-  to{transform:translate(var(--x),var(--y)) rotate(30deg)}
+button{background:#00ff9c;color:#000;font-weight:bold;cursor:pointer}
+
+.flash{animation:flash .25s alternate 6}
+@keyframes flash{
+  from{box-shadow:0 0 30px red}
+  to{box-shadow:0 0 70px red}
 }
 
-/* SHAYARI */
-#shayari{
-  font-size:26px;
-  line-height:1.6;
-  color:#ffd700;
-  text-shadow:0 0 10px gold
+.fade-in{animation:fadeIn 2s ease forwards}
+.fade-out{animation:fadeOut 1.5s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+
+.cake{
+  font-size:4rem;
+  cursor:pointer;
+  margin-top:25px;
+  text-align:center
 }
 
-/* FIREWORKS */
-.fire{
-  position:fixed;
-  width:6px;height:6px;
-  background:gold;
-  animation:fire 1s forwards;
+.photo{
+  width:130px;height:130px;margin:12px auto;
+  border-radius:50%;border:2px solid #00ff9c;overflow:hidden
 }
-@keyframes fire{
-  to{transform:translate(var(--x),var(--y));opacity:0}
-}
+.photo img{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 
 <body>
 
 <canvas id="matrix"></canvas>
-<div class="overlay"></div>
 
-<audio id="music" src="music.mp3" loop></audio>
-
-<!-- OPEN -->
-<div class="box" id="openBox">
-  <h1>OPEN</h1>
-  <button onclick="openSite()">OPEN</button>
+<!-- SCREEN 1 : KEY -->
+<div id="keyScreen" class="terminal">
+  <div class="title blink">SECURE NODE :: AUTH REQUIRED</div>
+  <div class="log" id="terminal"></div>
+  <input id="keyInput" placeholder="ENTER ACCESS KEY">
+  <button onclick="verifyKey()">EXECUTE</button>
 </div>
 
-<!-- NAME -->
-<div class="box" id="nameBox">
-  <h1>Enter Name</h1>
-  <input id="name">
-  <button onclick="nextAge()">NEXT</button>
+<!-- SCREEN 2 : SHAYARI -->
+<div id="cakeScreen" class="terminal hidden">
+  <div class="title">🎉 SPECIAL MESSAGE 🎉</div>
+  <div class="log" id="shayari"></div>
+  <div class="cake" onclick="startShayari()">🎂</div>
 </div>
 
-<!-- AGE -->
-<div class="box" id="ageBox">
-  <h1>Enter Age</h1>
-  <input id="age" type="number">
-  <button onclick="showCake()">NEXT</button>
-</div>
+<!-- SCREEN 3 : FINAL -->
+<div id="finalScreen" class="terminal hidden">
+  <div class="title">🎉 HAPPY BIRTHDAY BHAI 🎉</div>
+  <div class="photo">
+    <img src="https://i.ibb.co/FLmtmDYH/IMG-20240608-WA0001.jpg">
+  </div>
+  <div class="log">
+    Wo to mazaak tha yaar 😅  
+    Bura laga ho to maaf kar dena ❤️  
 
-<!-- CAKE -->
-<div class="box" id="cakeBox">
-  <h1>Aaj mere bete ka birthday hai</h1>
-  <div id="cake">🎂</div>
-  <button onclick="cutCake()">Cake kaat de, kitna intezaar karwayega</button>
-</div>
+    Mujhe to bahut maza aa gaya 😂🔥  
 
-<!-- SHAYARI -->
-<div class="box" id="shayariBox">
-  <div id="shayari"></div>
+    Happy Birthday bro 🎂🎉
+  </div>
 </div>
 
 <script>
 /* MATRIX */
-const c=matrix.getContext("2d");
-matrix.width=innerWidth;matrix.height=innerHeight;
-const drops=Array(200).fill(1);
+const c=document.getElementById("matrix"),ctx=c.getContext("2d");
+function resize(){c.width=innerWidth;c.height=innerHeight}
+resize();onresize=resize;
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const drops=Array(Math.floor(c.width/20)).fill(1);
 setInterval(()=>{
-  c.fillStyle="rgba(0,0,0,.1)";
-  c.fillRect(0,0,matrix.width,matrix.height);
-  c.fillStyle="#00ff99";
+  ctx.fillStyle="rgba(0,0,0,.05)";
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle="#00ff9c";ctx.font="16px monospace";
   drops.forEach((y,i)=>{
-    c.fillText("01"[Math.random()*2|0],i*10,y*10);
-    drops[i]=y*10>matrix.height?0:y+1;
+    ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*20,y*20);
+    if(y*20>c.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
   });
 },50);
 
-/* FLOW */
-openBox.style.display="block";
-
-function openSite(){
-  music.volume=0.5;
-  music.play();
-  openBox.style.display="none";
-  nameBox.style.display="block";
-}
-
-function nextAge(){
-  if(!name.value)return;
-  nameBox.style.display="none";
-  ageBox.style.display="block";
-}
-
-function showCake(){
-  if(!age.value)return;
-  ageBox.style.display="none";
-  cakeBox.style.display="block";
-}
-
-function cutCake(){
-  cake.innerHTML="";
-  for(let i=0;i<4;i++){
-    const s=document.createElement("div");
-    s.className="slice";
-    s.textContent="🍰";
-    s.style.setProperty("--x",(Math.random()*200-100)+"px");
-    s.style.setProperty("--y",(Math.random()*200-100)+"px");
-    cake.appendChild(s);
-  }
-  setTimeout(showShayari,1000);
-}
-
-function showShayari(){
-  cakeBox.style.display="none";
-  shayariBox.style.display="block";
-  shayari.innerHTML=
-  "Khush raho beta hamesha,<br>Baap ki dua tumhare saath hai ❤️";
-  fireworks();
-}
-
-/* FIREWORKS */
-function fireworks(){
-  for(let i=0;i<30;i++){
-    const f=document.createElement("div");
-    f.className="fire";
-    f.style.left="50%";
-    f.style.top="50%";
-    f.style.setProperty("--x",(Math.random()*400-200)+"px");
-    f.style.setProperty("--y",(Math.random()*400-200)+"px");
-    document.body.appendChild(f);
-    setTimeout(()=>f.remove(),1000);
+/* AUDIO */
+let audioCtx,unlocked=false;
+function unlock(){
+  if(!unlocked){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    unlocked=true;
   }
 }
+function typeSound(){
+  if(!unlocked)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type="square";o.frequency.value=700;g.gain.value=0.015;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();o.stop(audioCtx.currentTime+.04);
+}
+function alarm(){
+  if(!unlocked)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type="sawtooth";o.frequency.value=900;g.gain.value=0.08;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();o.stop(audioCtx.currentTime+.6);
+}
+
+/* SLOW TYPE ENGINE */
+function typeLines(el,lines,cb){
+  let l=0;el.textContent="";
+  function next(){
+    if(l>=lines.length){if(cb)cb();return;}
+    let c=0;el.textContent+="> ";
+    const t=setInterval(()=>{
+      el.textContent+=lines[l][c];
+      typeSound();
+      c++;
+      if(c>=lines[l].length){
+        clearInterval(t);
+        el.textContent+="\n";
+        l++;
+        setTimeout(next,1200); // ⏳ line delay
+      }
+    },120); // ⌨️ slow typing speed
+  }
+  next();
+}
+
+/* BOOT */
+typeLines(terminal,[
+  "Booting secure terminal...",
+  "Connecting to encrypted proxy...",
+  "Detecting client IP...",
+  "IP FOUND : 192.168."+r()+"."+r(),
+  "Awaiting authentication..."
+]);
+
+function verifyKey(){
+  unlock();
+  const key=keyInput.value.trim().toLowerCase();
+  if(key==="happy birthday zafar"){
+    typeLines(terminal,["✔ ACCESS GRANTED"],()=>{
+      keyScreen.classList.add("fade-out");
+      setTimeout(()=>{
+        keyScreen.classList.add("hidden");
+        cakeScreen.classList.remove("hidden");
+        cakeScreen.classList.add("fade-in");
+      },1500);
+    });
+  }else{
+    keyScreen.classList.add("flash");
+    alarm();
+    typeLines(terminal,[
+      "❌ INVALID KEY",
+      "Tracing IP...",
+      "IP FOUND : 103."+r()+"."+r()+"."+r(),
+      "ACCESS DENIED"
+    ]);
+    setTimeout(()=>keyScreen.classList.remove("flash"),1500);
+  }
+}
+
+/* SHAYARI */
+const lines=[
+  "Happy B’Day mere yaar Zafar 🎉",
+  "Sapne Netflix jaise unlimited,",
+  "Effort free trial — 3 din me expired 😆",
+  "Tu bole aaj se change,",
+  "Par aadatein boli: kal se 🤡🔥"
+];
+
+function startShayari(){
+  typeLines(shayari,lines,()=>{
+    cakeScreen.classList.add("fade-out");
+    setTimeout(()=>{
+      cakeScreen.classList.add("hidden");
+      finalScreen.classList.remove("hidden");
+      finalScreen.classList.add("fade-in");
+    },1500);
+  });
+}
+
+function r(){return Math.floor(Math.random()*255)}
 </script>
 
 </body>
